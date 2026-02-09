@@ -53,7 +53,7 @@ except Exception as e:
     st.stop()
 
 # =========================
-# ENHANCED STYLING - ALL FIXES INCLUDED
+# ENHANCED STYLING - BIGGER TITLE + NO ARROWS
 # =========================
 st.markdown("""
     <style>
@@ -216,21 +216,23 @@ st.markdown("""
         object-fit: contain;
     }
     
-    /* Title Enhancement - BIGGER SIZE */
-    h1 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        font-size: 3.5rem !important;
-        letter-spacing: -0.5px;
+    /* Title Enhancement - MUCH BIGGER SIZE */
+    h1, .main h1, [data-testid="stMarkdownContainer"] h1 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        font-weight: 800 !important;
+        font-size: 4.5rem !important;
+        letter-spacing: -1px !important;
         margin-bottom: 0.5rem !important;
+        line-height: 1.2 !important;
     }
     
     /* Subtitle */
     h5 {
         color: #667eea !important;
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
         font-weight: 500 !important;
         margin-top: 0 !important;
     }
@@ -443,20 +445,34 @@ st.markdown("""
         margin-top: 25px !important;
     }
     
-    /* FIX EXPANDER ARROW ISSUES */
-    /* Hide the _arrow text completely */
-    .streamlit-expanderHeader::before {
-        content: "" !important;
+    /* AGGRESSIVE FIX FOR EXPANDER ARROW TEXT */
+    /* Hide ALL expander markers and pseudo-elements */
+    details summary {
+        list-style: none !important;
+    }
+    
+    details summary::-webkit-details-marker {
         display: none !important;
     }
     
-    /* Hide any stray text nodes */
+    details summary::marker {
+        display: none !important;
+        content: "" !important;
+    }
+    
     details summary::before {
         content: "" !important;
         display: none !important;
     }
     
-    /* Clean expander styling */
+    /* Hide streamlit expander arrow elements */
+    .streamlit-expanderHeader::before,
+    .streamlit-expanderHeader::after {
+        content: "" !important;
+        display: none !important;
+    }
+    
+    /* Target the expander content area */
     .streamlit-expanderHeader {
         background: #f8f9fa !important;
         border-radius: 10px !important;
@@ -473,22 +489,24 @@ st.markdown("""
         color: #667eea !important;
     }
     
-    /* Remove default expander icons */
-    details summary {
-        list-style: none !important;
-    }
-    
-    details summary::-webkit-details-marker {
+    /* Hide any text nodes starting with underscore */
+    .streamlit-expanderHeader *[class*="_arrow"],
+    .streamlit-expanderHeader *[class*="arrow"],
+    [class*="_arrow"] {
         display: none !important;
+        visibility: hidden !important;
+        font-size: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        opacity: 0 !important;
     }
     
-    /* Hide all ::marker pseudo-elements */
-    details summary::marker {
-        display: none !important;
-        content: "" !important;
+    /* Force hide text content that contains arrow */
+    .streamlit-expanderHeader span:not(:empty) {
+        font-size: 14px !important;
     }
     
-    /* Expander content */
+    /* Clean expander content */
     .streamlit-expanderContent {
         background: white !important;
         padding: 15px !important;
@@ -499,6 +517,12 @@ st.markdown("""
     [data-testid="stDecoration"],
     .element-container [title*="keyboard"],
     [aria-label*="keyboard"] {
+        display: none !important;
+    }
+    
+    /* Hide empty spans and weird artifacts */
+    span:empty,
+    div:empty {
         display: none !important;
     }
     
@@ -542,11 +566,6 @@ st.markdown("""
     /* Code blocks */
     .stCodeBlock {
         background: #2d3748 !important;
-    }
-    
-    /* Hide any leftover text artifacts */
-    span:empty {
-        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -735,7 +754,7 @@ if uploaded_file:
         
         st.write("### 📈 Statistical Summary")
         if len(report["numeric_cols"]) > 0:
-            with st.expander("📊 View Statistics", expanded=False):
+            with st.expander("📊 View Statistics"):
                 st.dataframe(df[report["numeric_cols"]].describe(), use_container_width=True)
 
     # TAB 2: QUALITY AUDIT
