@@ -53,7 +53,7 @@ except Exception as e:
     st.stop()
 
 # =========================
-# ENHANCED STYLING - WITH RED SLIDER
+# COMPLETE FIXED STYLING
 # =========================
 st.markdown("""
     <style>
@@ -64,7 +64,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif !important;
     }
     
-    /* FORCE WHITE BACKGROUND EVERYWHERE */
+    /* FORCE WHITE BACKGROUND */
     .stApp {
         background-color: #ffffff !important;
     }
@@ -79,7 +79,6 @@ st.markdown("""
         max-width: 1400px !important;
     }
     
-    /* Main content area */
     [data-testid="stAppViewContainer"] {
         background-color: #ffffff !important;
     }
@@ -88,7 +87,7 @@ st.markdown("""
         background-color: rgba(255, 255, 255, 0) !important;
     }
     
-    /* CUSTOM TITLE STYLING - KEEP AS IS */
+    /* CUSTOM TITLE STYLING */
     .custom-title {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         -webkit-background-clip: text;
@@ -111,13 +110,6 @@ st.markdown("""
         margin-top: 0.5rem !important;
         margin-bottom: 2rem !important;
         padding: 0 !important;
-    }
-    
-    /* Remove keyboard shortcuts tooltip */
-    [data-testid="stTooltipHoverTarget"],
-    .stTooltipIcon,
-    [data-testid="stHeaderActionElements"] button[title*="keyboard"] {
-        display: none !important;
     }
     
     /* Enhanced Metrics */
@@ -265,27 +257,51 @@ st.markdown("""
         box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
     }
     
-    /* Chat Messages */
-    .stChatMessage {
-        background: #f8f9fa !important;
-        border-radius: 15px;
-        padding: 15px;
-        margin: 10px 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border: 1px solid #e9ecef;
+    /* FIX CHAT AVATARS - HIDE COLORED BOXES */
+    .stChatMessage [data-testid="chatAvatarIcon-user"],
+    .stChatMessage [data-testid="chatAvatarIcon-assistant"] {
+        display: none !important;
     }
     
-    /* DataFrames - FORCE VISIBILITY */
+    /* Hide avatar containers */
+    [data-testid="stChatMessageAvatarUser"],
+    [data-testid="stChatMessageAvatarAssistant"] {
+        display: none !important;
+    }
+    
+    /* Adjust chat message padding since avatars are hidden */
+    .stChatMessage {
+        background: #f8f9fa !important;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        margin: 15px 0 !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+        border: 1px solid #e9ecef !important;
+        padding-left: 20px !important;
+    }
+    
+    /* Style user messages */
+    [data-testid="stChatMessageContent-user"] {
+        background: linear-gradient(135deg, #e8eeff 0%, #f5f7ff 100%) !important;
+        padding: 15px !important;
+        border-radius: 12px !important;
+        border-left: 4px solid #667eea !important;
+    }
+    
+    /* Style assistant messages */
+    [data-testid="stChatMessageContent-assistant"] {
+        background: #ffffff !important;
+        padding: 15px !important;
+        border-radius: 12px !important;
+        border-left: 4px solid #764ba2 !important;
+    }
+    
+    /* DataFrames */
     [data-testid="stDataFrame"],
-    .stDataFrame,
-    div[data-testid="stDataFrame"] > div,
-    div[data-testid="stDataFrame"] > div > div {
+    .stDataFrame {
         background: white !important;
         display: block !important;
         visibility: visible !important;
-        opacity: 1 !important;
-        height: auto !important;
-        min-height: 300px !important;
     }
     
     .stDataFrame {
@@ -335,20 +351,64 @@ st.markdown("""
         color: #1e40af !important;
     }
     
-    /* Selectbox */
+    /* FIX SELECTBOX - MAKE TEXT VISIBLE */
+    .stSelectbox {
+        color: #2d3748 !important;
+    }
+    
     .stSelectbox > div > div {
-        border-radius: 10px;
-        border: 2px solid #e9ecef;
+        border-radius: 10px !important;
+        border: 2px solid #e9ecef !important;
         background: #ffffff !important;
+        color: #2d3748 !important;
     }
     
     .stSelectbox > div > div:hover {
-        border-color: #667eea;
+        border-color: #667eea !important;
     }
     
-    /* RED SLIDER STYLING - CUSTOM */
+    /* Selectbox label */
+    .stSelectbox label {
+        color: #2d3748 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+    }
+    
+    /* Selectbox selected text */
+    .stSelectbox > div > div > div {
+        color: #2d3748 !important;
+        background: white !important;
+    }
+    
+    /* Selectbox dropdown options */
+    .stSelectbox [data-baseweb="select"] > div {
+        background: white !important;
+        color: #2d3748 !important;
+    }
+    
+    /* Selectbox menu */
+    [data-baseweb="popover"] {
+        background: white !important;
+    }
+    
+    [data-baseweb="menu"] {
+        background: white !important;
+    }
+    
+    [role="option"] {
+        background: white !important;
+        color: #2d3748 !important;
+    }
+    
+    [role="option"]:hover {
+        background: #f8f9fa !important;
+        color: #667eea !important;
+    }
+    
+    /* RED SLIDER - NO OVERLAP */
     .stSlider {
-        padding: 15px 0 !important;
+        padding: 20px 0 !important;
+        margin-bottom: 10px !important;
     }
     
     .stSlider > div {
@@ -385,10 +445,18 @@ st.markdown("""
         transform: scale(1.1);
     }
     
+    /* Slider label - fix overlap */
     .stSlider label {
         color: #2d3748 !important;
         font-weight: 600 !important;
         font-size: 15px !important;
+        margin-bottom: 10px !important;
+        display: block !important;
+    }
+    
+    /* Slider value display */
+    .stSlider [data-baseweb="slider"] > div:last-child {
+        display: none !important;
     }
     
     /* File Uploader */
@@ -557,6 +625,16 @@ st.markdown("""
     .stCodeBlock {
         background: #2d3748 !important;
     }
+    
+    /* Chat input */
+    .stChatInputContainer {
+        background: white !important;
+    }
+    
+    .stChatInput textarea {
+        color: #2d3748 !important;
+        background: white !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -663,7 +741,7 @@ def smart_chat(df, user_input):
 # UI LAYOUT
 # =========================
 
-# BIG TITLE - KEEP AS IS
+# BIG TITLE
 st.markdown("""
     <div style='margin-bottom: 2rem;'>
         <div class='custom-title'>✨ DataGuardian AI</div>
@@ -697,7 +775,7 @@ if uploaded_file:
     
     tabs = st.tabs(["💎 Data Preview", "🛡️ Quality Audit", "🧠 AI Assistant", "🚀 Model Playground"])
 
-    # TAB 1: DATA PREVIEW - FIXED TABLE
+    # TAB 1: DATA PREVIEW
     with tabs[0]:
         st.subheader("📊 Data Overview")
         
@@ -710,7 +788,6 @@ if uploaded_file:
         st.markdown("---")
         
         st.markdown("### 🔍 First 10 Rows")
-        # FIXED: Use st.write with explicit display
         st.write(df.head(10))
         
         st.markdown("---")
@@ -751,7 +828,6 @@ if uploaded_file:
         st.markdown("### 📈 Statistical Summary")
         if len(report["numeric_cols"]) > 0:
             with st.expander("📊 Click to View Statistics"):
-                # FIXED: Use st.write for statistics
                 st.write(df[report["numeric_cols"]].describe())
 
     # TAB 2: QUALITY AUDIT
@@ -908,14 +984,14 @@ if uploaded_file:
             
             st.session_state.messages.append({"role": "assistant", "content": resp})
 
-    # TAB 4: MODEL PLAYGROUND - RED SLIDER
+    # TAB 4: MODEL PLAYGROUND
     with tabs[3]:
         st.subheader("🚀 ML Model Playground")
         
         col_config1, col_config2, col_config3 = st.columns([2, 2, 1])
         
         with col_config1:
-            target_col = st.selectbox("🎯 Select Target Variable", options=df.columns)
+            target_col = st.selectbox("🎯 Select Target Variable", options=df.columns, key="target_var")
         
         with col_config2:
             if target_col:
@@ -930,19 +1006,20 @@ if uploaded_file:
                 )
         
         with col_config3:
-            # RED DRAGGABLE SLIDER
+            # RED SLIDER - NO OVERLAP
             st.markdown("**Test Size**")
             test_size_percent = st.slider(
-                "Drag to adjust test data percentage",
+                "test_size_slider",
                 min_value=10, 
                 max_value=40, 
                 value=20,
                 step=5,
                 label_visibility="collapsed",
-                key="test_size_slider"
+                key="test_size_slider_key"
             )
             test_size = test_size_percent / 100
-            st.markdown(f"<p style='text-align: center; color: #666; font-size: 13px;'>Using {test_size_percent}% for testing</p>", unsafe_allow_html=True)
+            # Display percentage BELOW slider to avoid overlap
+            st.markdown(f"<p style='text-align: center; color: #666; font-size: 14px; margin-top: 5px;'>📊 {test_size_percent}% for testing</p>", unsafe_allow_html=True)
         
         st.markdown("---")
         
