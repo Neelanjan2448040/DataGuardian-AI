@@ -17,40 +17,49 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report, mea
 # CONFIG & STYLING
 # =========================
 
-# Load environment variables from .env file (for local development)
+# Must set page config FIRST
+st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
+
+# Load environment variables
 load_dotenv()
 
-# Get API key with priority: Streamlit Secrets > Environment Variable
+# Get API key with multiple methods
+GROQ_API_KEY = None
+
+# Try Streamlit secrets (cloud deployment)
 try:
-    # Try to get from Streamlit secrets (for cloud deployment)
     GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-except (FileNotFoundError, KeyError):
-    # Fall back to environment variable (for local development with .env)
+except:
+    pass
+
+# Try environment variable (local .env)
+if not GROQ_API_KEY:
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# Validate API key availability
+# Validate
 if not GROQ_API_KEY:
     st.error("🔑 **GROQ_API_KEY not found!**")
-    st.warning("""
-    **For Local Development:** Create a `.env` file with:
-    ```
-    GROQ_API_KEY=your_api_key_here
-    ```
     
-    **For Streamlit Cloud:** Add your API key in the Secrets section:
-    1. Go to your app settings
-    2. Click "Secrets" 
-    3. Add: `GROQ_API_KEY = "your_api_key_here"`
-    """)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 💻 For Local Development")
+        st.code('GROQ_API_KEY=gsk_your_key_here', language="bash")
+    
+    with col2:
+        st.markdown("### ☁️ For Streamlit Cloud")
+        st.markdown("Add to Secrets in Settings:")
+        st.code('GROQ_API_KEY = "gsk_your_key_here"', language="toml")
+    
+    st.info("🔗 Get your API key: https://console.groq.com/keys")
     st.stop()
 
-# Initialize Groq client
+# Initialize client
 try:
     client = Groq(api_key=GROQ_API_KEY)
     MODEL = "llama-3.3-70b-versatile"
 except Exception as e:
-    st.error(f"❌ Failed to initialize Groq client: {e}")
-    st.info("Please check your API key and try again.")
+    st.error(f"❌ Error: {e}")
     st.stop()
 
 st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
