@@ -53,7 +53,7 @@ except Exception as e:
     st.stop()
 
 # =========================
-# ENHANCED STYLING
+# ENHANCED STYLING - ALL FIXES
 # =========================
 st.markdown("""
     <style>
@@ -88,6 +88,31 @@ st.markdown("""
         background-color: rgba(255, 255, 255, 0) !important;
     }
     
+    /* CUSTOM TITLE STYLING - FORCE BIGGER */
+    .custom-title {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 900 !important;
+        font-size: 5rem !important;
+        letter-spacing: -2px !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.1 !important;
+        padding: 0 !important;
+        margin-top: 0 !important;
+        display: block !important;
+    }
+    
+    .custom-subtitle {
+        color: #667eea !important;
+        font-size: 1.4rem !important;
+        font-weight: 500 !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 2rem !important;
+        padding: 0 !important;
+    }
+    
     /* Remove keyboard shortcuts tooltip */
     [data-testid="stTooltipHoverTarget"],
     .stTooltipIcon,
@@ -105,11 +130,6 @@ st.markdown("""
     /* Remove any tooltip content */
     [role="tooltip"] {
         display: none !important;
-    }
-    
-    /* Remove sidebar */
-    section[data-testid="stSidebar"] > div {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%) !important;
     }
     
     /* Enhanced Metrics */
@@ -271,17 +291,20 @@ st.markdown("""
         border: 1px solid #e9ecef;
     }
     
-    /* DataFrames */
+    /* DataFrames - FIX VISIBILITY */
     [data-testid="stDataFrame"] {
         background: white !important;
+        min-height: 400px !important;
     }
     
     .stDataFrame {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e9ecef;
+        border-radius: 12px !important;
+        overflow: visible !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
+        border: 1px solid #e9ecef !important;
         background: white !important;
+        display: block !important;
+        visibility: visible !important;
     }
     
     .stDataFrame thead tr th {
@@ -290,6 +313,18 @@ st.markdown("""
         font-weight: 600 !important;
         padding: 12px !important;
         font-size: 14px !important;
+    }
+    
+    .stDataFrame tbody {
+        background: white !important;
+    }
+    
+    .stDataFrame tbody tr {
+        background: white !important;
+    }
+    
+    .stDataFrame tbody tr:hover {
+        background: #f8f9fa !important;
     }
     
     /* Dividers */
@@ -334,6 +369,29 @@ st.markdown("""
     
     .stSelectbox > div > div:hover {
         border-color: #667eea;
+    }
+    
+    /* Slider Enhancement - MAKE VISIBLE */
+    .stSlider {
+        padding: 10px 0 !important;
+    }
+    
+    .stSlider > div {
+        background: white !important;
+    }
+    
+    .stSlider > div > div {
+        background: white !important;
+    }
+    
+    .stSlider > div > div > div {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .stSlider label {
+        color: #2d3748 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
     }
     
     /* File Uploader */
@@ -424,8 +482,7 @@ st.markdown("""
         margin-top: 25px !important;
     }
     
-    /* AGGRESSIVE FIX FOR EXPANDER ARROW TEXT */
-    /* Hide ALL expander markers and pseudo-elements */
+    /* NUCLEAR FIX FOR EXPANDER ARROWS - HIDE EVERYTHING */
     details summary {
         list-style: none !important;
     }
@@ -439,19 +496,22 @@ st.markdown("""
         content: "" !important;
     }
     
-    details summary::before {
+    details summary::before,
+    details summary::after {
         content: "" !important;
         display: none !important;
     }
     
-    /* Hide streamlit expander arrow elements */
     .streamlit-expanderHeader::before,
     .streamlit-expanderHeader::after {
         content: "" !important;
         display: none !important;
     }
     
-    /* Target the expander content area */
+    .streamlit-expanderHeader svg {
+        display: none !important;
+    }
+    
     .streamlit-expanderHeader {
         background: #f8f9fa !important;
         border-radius: 10px !important;
@@ -468,10 +528,11 @@ st.markdown("""
         color: #667eea !important;
     }
     
-    /* Hide any text nodes starting with underscore */
+    /* Hide arrow text and symbols */
     .streamlit-expanderHeader *[class*="_arrow"],
     .streamlit-expanderHeader *[class*="arrow"],
-    [class*="_arrow"] {
+    [class*="_arrow"],
+    [class*="Arrow"] {
         display: none !important;
         visibility: hidden !important;
         font-size: 0 !important;
@@ -480,7 +541,6 @@ st.markdown("""
         opacity: 0 !important;
     }
     
-    /* Clean expander content */
     .streamlit-expanderContent {
         background: white !important;
         padding: 15px !important;
@@ -494,7 +554,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Hide empty spans and weird artifacts */
+    /* Hide empty spans */
     span:empty,
     div:empty {
         display: none !important;
@@ -644,36 +704,15 @@ def smart_chat(df, user_input):
     return response.choices[0].message.content
 
 # =========================
-# UI LAYOUT - WITH BIGGER TITLE
+# UI LAYOUT - FIXED TITLE
 # =========================
 
-# CUSTOM HTML TITLE - MUCH BIGGER
+# BIG TITLE WITH DIV WRAPPER
 st.markdown("""
-    <h1 style='
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 800 !important;
-        font-size: 4.5rem !important;
-        letter-spacing: -1px;
-        margin-bottom: 0.5rem !important;
-        line-height: 1.2 !important;
-        padding: 0;
-        margin-top: 0;
-    '>
-        ✨ DataGuardian AI
-    </h1>
-    <h5 style='
-        color: #667eea !important;
-        font-size: 1.3rem !important;
-        font-weight: 500;
-        margin-top: 0 !important;
-        margin-bottom: 2rem;
-        padding: 0;
-    '>
-        🛡️ Intelligent Data Analysis & Model Training Platform
-    </h5>
+    <div style='margin-bottom: 2rem;'>
+        <div class='custom-title'>✨ DataGuardian AI</div>
+        <div class='custom-subtitle'>🛡️ Intelligent Data Analysis & Model Training Platform</div>
+    </div>
 """, unsafe_allow_html=True)
 
 with st.sidebar:
@@ -714,8 +753,18 @@ if uploaded_file:
         
         st.markdown("---")
         
-        st.write("### 🔍 First 10 Rows")
-        st.dataframe(df.head(10), use_container_width=True, height=350)
+        st.markdown("### 🔍 First 10 Rows")
+        # FORCE TABLE TO SHOW
+        try:
+            st.dataframe(
+                df.head(10), 
+                use_container_width=True, 
+                height=400,
+                hide_index=False
+            )
+        except:
+            # Fallback if dataframe doesn't render
+            st.write(df.head(10))
         
         st.markdown("---")
         
@@ -752,9 +801,10 @@ if uploaded_file:
         
         st.markdown("---")
         
-        st.write("### 📈 Statistical Summary")
+        st.markdown("### 📈 Statistical Summary")
         if len(report["numeric_cols"]) > 0:
-            with st.expander("📊 View Statistics"):
+            # Use markdown instead of st.write for expander label
+            with st.expander("📊 Click to View Statistics"):
                 st.dataframe(df[report["numeric_cols"]].describe(), use_container_width=True)
 
     # TAB 2: QUALITY AUDIT
@@ -815,7 +865,7 @@ if uploaded_file:
             plt.clf()
         
         if len(report["numeric_cols"]) > 1:
-            with st.expander("📊 View Correlations & Distributions"):
+            with st.expander("📊 Click to View Correlations & Distributions"):
                 col3, col4 = st.columns(2)
                 
                 with col3:
@@ -851,7 +901,7 @@ if uploaded_file:
                     plt.clf()
         
         if len(report["categorical_cols"]) > 0:
-            with st.expander("📂 View Categorical Analysis"):
+            with st.expander("📂 Click to View Categorical Analysis"):
                 cat_col = st.selectbox("Select column:", report["categorical_cols"], key="cat")
                 fig, ax = plt.subplots(figsize=(9, 3))
                 value_counts = df[cat_col].value_counts().head(8)
@@ -911,7 +961,7 @@ if uploaded_file:
             
             st.session_state.messages.append({"role": "assistant", "content": resp})
 
-    # TAB 4: MODEL PLAYGROUND
+    # TAB 4: MODEL PLAYGROUND - FIXED SLIDER
     with tabs[3]:
         st.subheader("🚀 ML Model Playground")
         
@@ -933,7 +983,18 @@ if uploaded_file:
                 )
         
         with col_config3:
-            test_size = st.slider("Test Size (%)", 10, 40, 20) / 100
+            # FIXED SLIDER WITH VISIBLE BAR
+            st.markdown("**Test Size**")
+            test_size = st.slider(
+                "Adjust test data percentage",
+                min_value=10, 
+                max_value=40, 
+                value=20,
+                step=5,
+                format="%d%%",
+                label_visibility="collapsed"
+            ) / 100
+            st.caption(f"Using {int(test_size*100)}% for testing")
         
         st.markdown("---")
         
@@ -1118,7 +1179,7 @@ if uploaded_file:
                                     plt.clf()
                         
                         st.markdown("---")
-                        with st.expander("ℹ️ Model Information"):
+                        with st.expander("ℹ️ Click for Model Information"):
                             st.write(f"**Model Type:** {problem_type}")
                             st.write(f"**Algorithm:** {model_choice}")
                             st.write(f"**Training Samples:** {len(X_train)}")
