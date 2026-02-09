@@ -14,47 +14,15 @@ from sklearn.svm import SVC, SVR
 from sklearn.metrics import accuracy_score, f1_score, classification_report, mean_squared_error, r2_score, mean_absolute_error
 
 # =========================
-# PAGE CONFIG - MUST BE FIRST!
-# =========================
-st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
-
-# =========================
-# API KEY SETUP
+# CONFIG & STYLING
 # =========================
 load_dotenv()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+MODEL = "llama-3.3-70b-versatile"
 
-# Get API key - try Streamlit secrets first, then environment variable
-GROQ_API_KEY = None
-try:
-    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-except:
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
 
-# Validate API key
-if not GROQ_API_KEY:
-    st.error("🔑 **GROQ_API_KEY not found!**")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("### 💻 For Local Development")
-        st.code('GROQ_API_KEY=gsk_your_key_here', language="bash")
-    with col2:
-        st.markdown("### ☁️ For Streamlit Cloud")
-        st.markdown("Add to Settings → Secrets:")
-        st.code('GROQ_API_KEY = "gsk_your_key_here"', language="toml")
-    st.info("🔗 Get your API key: https://console.groq.com/keys")
-    st.stop()
-
-# Initialize Groq client
-try:
-    client = Groq(api_key=GROQ_API_KEY)
-    MODEL = "llama-3.3-70b-versatile"
-except Exception as e:
-    st.error(f"❌ Failed to initialize Groq: {e}")
-    st.stop()
-
-# =========================
-# STYLING
-# =========================
+# Enhanced CSS with stunning modern design
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
@@ -63,43 +31,54 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    /* Main Background - Clean White */
+    /* Main Background with Animated Gradient */
     .main { 
-        background: #ffffff;
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
     }
     
-    /* Content Area */
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Content Area with Glassmorphism */
     .block-container {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
         border-radius: 20px;
         padding: 2rem;
-        max-width: 1400px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
     
     /* Enhanced Metrics */
     .stMetric { 
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        padding: 20px; 
-        border-radius: 15px; 
-        border-left: 5px solid #667eea;
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        padding: 25px; 
+        border-radius: 20px; 
+        border-left: 6px solid #667eea;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        backdrop-filter: blur(10px);
     }
     
     .stMetric:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        border-left-width: 8px;
     }
     
     .stMetric label {
-        font-size: 13px !important;
+        font-size: 14px !important;
         font-weight: 600 !important;
         color: #667eea !important;
     }
     
     .stMetric [data-testid="stMetricValue"] {
-        font-size: 28px !important;
-        font-weight: 700 !important;
+        font-size: 32px !important;
+        font-weight: 800 !important;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -107,72 +86,77 @@ st.markdown("""
     
     /* Beautiful Tabs */
     .stTabs [data-baseweb="tab-list"] { 
-        gap: 10px; 
-        background: #f8f9fa;
-        padding: 12px;
-        border-radius: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        gap: 12px; 
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,242,245,0.9) 100%);
+        padding: 15px;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        backdrop-filter: blur(10px);
     }
     
     .stTabs [data-baseweb="tab"] { 
-        background: #ffffff;
-        border-radius: 12px; 
-        padding: 12px 24px; 
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 15px; 
+        padding: 14px 28px; 
         color: #495057;
-        font-weight: 600;
-        font-size: 14px;
-        border: 2px solid #e9ecef;
-        transition: all 0.3s ease;
+        font-weight: 700;
+        font-size: 15px;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stTabs [data-baseweb="tab"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
-        background: #f8f9fa;
-        transform: translateY(-2px);
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         border-color: #667eea;
-        color: #667eea;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover::before {
+        left: 100%;
     }
     
     .stTabs [aria-selected="true"] { 
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important; 
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35) !important;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+        transform: translateY(-2px);
         border-color: #764ba2 !important;
     }
     
     /* Sidebar Enhancement */
-    [data-testid="stSidebar"] {
+    .css-1d391kg, [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.1);
     }
     
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
+    .css-1d391kg h1, .css-1d391kg h2, .css-1d391kg h3, 
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
         color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
     
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] li {
+    .css-1d391kg p, .css-1d391kg li, 
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] li {
         color: rgba(255,255,255,0.95) !important;
     }
     
-    /* Logo container */
-    .logo-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: white;
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 20px auto;
-        padding: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
-    
-    .logo-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+    .css-1d391kg .stMarkdown, [data-testid="stSidebar"] .stMarkdown {
+        color: white !important;
     }
     
     /* Title Enhancement */
@@ -181,42 +165,15 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
-        font-size: 2.5rem !important;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.5rem !important;
+        font-size: 3.5rem !important;
+        letter-spacing: -1px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        animation: titleGlow 3s ease-in-out infinite;
     }
     
-    /* Subtitle */
-    h5 {
-        color: #667eea !important;
-        font-size: 1.1rem !important;
-        font-weight: 500 !important;
-        margin-top: 0 !important;
-    }
-    
-    /* Subheaders */
-    h2 {
-        color: #2d3748 !important;
-        font-weight: 700 !important;
-        font-size: 1.8rem !important;
-    }
-    
-    h3 {
-        color: #667eea !important;
-        font-weight: 700 !important;
-        font-size: 1.3rem !important;
-    }
-    
-    h4 {
-        color: #495057 !important;
-        font-weight: 600 !important;
-        font-size: 1.1rem !important;
-    }
-    
-    /* Regular text */
-    p, li, span, div {
-        color: #2d3748 !important;
-        font-size: 15px !important;
+    @keyframes titleGlow {
+        0%, 100% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); }
+        50% { filter: drop-shadow(0 0 20px rgba(118, 75, 162, 0.8)); }
     }
     
     /* Enhanced Buttons */
@@ -224,45 +181,128 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
-        border-radius: 12px;
-        padding: 12px 28px;
-        font-weight: 600;
-        font-size: 15px;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s ease;
+        border-radius: 15px;
+        padding: 14px 32px;
+        font-weight: 700;
+        font-size: 16px;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stButton>button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .stButton>button:hover::before {
+        width: 300px;
+        height: 300px;
     }
     
     .stButton>button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
     }
     
-    /* Chat Messages */
+    /* Beautiful Chat Messages */
     .stChatMessage {
-        background: #f8f9fa;
-        border-radius: 15px;
-        padding: 15px;
-        margin: 10px 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border: 1px solid #e9ecef;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+        animation: messageSlide 0.5s ease-out;
     }
     
-    /* DataFrames */
+    @keyframes messageSlide {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .stChatMessage:hover {
+        transform: translateX(5px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Chat Input Enhancement */
+    .stChatInputContainer {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        border-radius: 25px;
+        padding: 10px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+    }
+    
+    .stChatInput textarea {
+        border-radius: 20px !important;
+        border: 2px solid rgba(102, 126, 234, 0.3) !important;
+        padding: 15px !important;
+        font-size: 15px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stChatInput textarea:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    /* Enhanced DataFrames */
     .stDataFrame {
-        border-radius: 12px;
+        border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
     }
     
     .stDataFrame thead tr th {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important;
-        font-weight: 600 !important;
-        padding: 12px !important;
-        font-size: 14px !important;
+        font-weight: 700 !important;
+        padding: 15px !important;
+    }
+    
+    .stDataFrame tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05) !important;
+        transition: background-color 0.3s ease;
+    }
+    
+    /* Code Blocks Enhancement */
+    .stCodeBlock {
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    }
+    
+    /* Subheaders */
+    .stMarkdown h3, h3 {
+        color: #667eea !important;
+        font-weight: 700 !important;
+        margin-top: 20px !important;
+        font-size: 24px !important;
     }
     
     /* Dividers */
@@ -270,136 +310,110 @@ st.markdown("""
         border: none;
         height: 2px;
         background: linear-gradient(90deg, transparent, #667eea, transparent);
-        margin: 25px 0;
+        margin: 30px 0;
     }
     
     /* Success/Error/Info Messages */
+    .stSuccess, .stError, .stInfo, .stWarning {
+        border-radius: 15px;
+        padding: 15px 20px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
     .stSuccess {
         background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-        border-left: 4px solid #059669;
-        border-radius: 10px;
-        padding: 12px 16px;
-        color: #065f46 !important;
+        border-left: 5px solid #059669;
     }
     
     .stError {
         background: linear-gradient(135deg, #ffa8a8 0%, #ff6b6b 100%);
-        border-left: 4px solid #dc2626;
-        border-radius: 10px;
-        padding: 12px 16px;
-        color: #991b1b !important;
+        border-left: 5px solid #dc2626;
     }
     
     .stInfo {
         background: linear-gradient(135deg, #a8e6ff 0%, #6bb6ff 100%);
-        border-left: 4px solid #2563eb;
-        border-radius: 10px;
-        padding: 12px 16px;
-        color: #1e40af !important;
+        border-left: 5px solid #2563eb;
     }
     
-    /* Selectbox */
+    /* Spinner */
+    .stSpinner > div {
+        border-color: #667eea transparent transparent transparent !important;
+    }
+    
+    /* Selectbox Enhancement */
     .stSelectbox > div > div {
-        border-radius: 10px;
-        border: 2px solid #e9ecef;
-        background: #ffffff;
+        border-radius: 12px;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
     }
     
     .stSelectbox > div > div:hover {
         border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Radio buttons */
+    .stRadio > div {
+        background: rgba(255, 255, 255, 0.5);
+        padding: 10px;
+        border-radius: 10px;
     }
     
     /* File Uploader */
     .stFileUploader {
-        border-radius: 12px;
-        border: 2px dashed #e9ecef;
-        padding: 25px;
-        background: #f8f9fa;
+        border-radius: 15px;
+        border: 3px dashed rgba(255, 255, 255, 0.5);
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
     }
     
     .stFileUploader:hover {
-        border-color: #667eea;
-        background: #ffffff;
+        border-color: white;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Slider Enhancement */
+    .stSlider > div > div > div {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     }
     
     /* Welcome Screen */
     .welcome-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        border: 2px solid #e9ecef;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.1);
         transition: all 0.3s ease;
-        text-align: center;
     }
     
     .welcome-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
-        border-color: #667eea;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.15);
     }
     
-    .welcome-card h3 {
-        font-size: 1.2rem !important;
-        margin-bottom: 8px !important;
-    }
-    
-    .welcome-card p {
-        color: #6c757d !important;
-        font-size: 14px !important;
-    }
-    
-    /* Info Card */
+    /* Info Card for Stats */
     .info-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        border-radius: 12px;
-        padding: 18px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border-left: 4px solid #667eea;
-        margin: 12px 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        backdrop-filter: blur(10px);
+        border-left: 5px solid #667eea;
+        margin: 15px 0;
     }
     
-    .info-card h4 {
-        margin-bottom: 12px !important;
-        font-size: 1.1rem !important;
-    }
-    
-    /* Welcome message */
-    .welcome-message {
-        text-align: center;
-        padding: 60px 20px;
-    }
-    
-    .welcome-message h2 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.5rem !important;
-        font-weight: 800;
-        margin-bottom: 15px !important;
-    }
-    
-    .welcome-message .subtitle {
-        font-size: 1.3rem !important;
-        color: #667eea !important;
-        margin-top: 15px !important;
-        font-weight: 600;
-    }
-    
-    .welcome-message .instruction {
-        font-size: 1.1rem !important;
-        color: #6c757d !important;
-        margin-top: 25px !important;
-    }
-    
-    /* Scrollbar */
+    /* Smooth Scrollbar */
     ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
     }
     
     ::-webkit-scrollbar-track {
-        background: #f8f9fa;
+        background: rgba(240, 242, 245, 0.5);
         border-radius: 10px;
     }
     
@@ -408,10 +422,14 @@ st.markdown("""
         border-radius: 10px;
     }
     
-    /* Float animation */
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+    }
+    
+    /* Floating Animation */
     @keyframes float {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
+        50% { transform: translateY(-10px); }
     }
     
     .float {
@@ -527,12 +545,8 @@ st.title("✨ DataGuardian AI")
 st.markdown("##### 🛡️ Intelligent Data Analysis & Model Training Platform")
 
 with st.sidebar:
-    st.markdown("""
-        <div class="logo-container">
-            <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png" alt="Logo">
-        </div>
-    """, unsafe_allow_html=True)
-    
+    st.image("https://cdn-icons-png.flaticon.com/512/2103/2103633.png", width=70)
+    st.markdown("<br>", unsafe_allow_html=True)
     st.header("📤 Upload Center")
     uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
     
@@ -552,7 +566,9 @@ if uploaded_file:
     
     tabs = st.tabs(["💎 Data Preview", "🛡️ Quality Audit", "🧠 AI Assistant", "🚀 Model Playground"])
 
+    # =========================
     # TAB 1: DATA PREVIEW
+    # =========================
     with tabs[0]:
         st.subheader("📊 Data Overview")
         
@@ -607,7 +623,9 @@ if uploaded_file:
             with st.expander("View Statistics", expanded=False):
                 st.dataframe(df[report["numeric_cols"]].describe(), use_container_width=True)
 
+    # =========================
     # TAB 2: QUALITY AUDIT
+    # =========================
     with tabs[1]:
         st.subheader("🔍 Data Quality Overview")
         
@@ -712,7 +730,9 @@ if uploaded_file:
                 st.pyplot(fig)
                 plt.clf()
 
+    # =========================
     # TAB 3: AI ASSISTANT
+    # =========================
     with tabs[2]:
         st.subheader("💬 Chat with your Data")
         st.markdown("*Ask questions naturally - I'll provide visualizations when you need them!*")
@@ -761,7 +781,9 @@ if uploaded_file:
             
             st.session_state.messages.append({"role": "assistant", "content": resp})
 
+    # =========================
     # TAB 4: MODEL PLAYGROUND
+    # =========================
     with tabs[3]:
         st.subheader("🚀 ML Model Playground")
         
@@ -983,10 +1005,18 @@ if uploaded_file:
 
 else:
     st.markdown("""
-    <div class='welcome-message'>
-        <h2>👋 Welcome to DataGuardian AI!</h2>
-        <p class='subtitle'>✨ Your intelligent companion for data analysis</p>
-        <p class='instruction'>👈 Upload a CSV file to begin</p>
+    <div style='text-align: center; padding: 80px 20px;'>
+        <h2 style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                   font-size: 3rem; font-weight: 800; margin-bottom: 20px;'>
+            👋 Welcome to DataGuardian AI!
+        </h2>
+        <p style='font-size: 22px; color: #667eea; margin-top: 20px; font-weight: 600;'>
+            ✨ Your intelligent companion for data analysis
+        </p>
+        <p style='font-size: 18px; color: #adb5bd; margin-top: 30px;'>
+            👈 Upload a CSV file to begin
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
