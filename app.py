@@ -53,7 +53,7 @@ except Exception as e:
     st.stop()
 
 # =========================
-# ENHANCED STYLING - ALL FIXES
+# ENHANCED STYLING - WITH RED SLIDER
 # =========================
 st.markdown("""
     <style>
@@ -88,7 +88,7 @@ st.markdown("""
         background-color: rgba(255, 255, 255, 0) !important;
     }
     
-    /* CUSTOM TITLE STYLING - FORCE BIGGER */
+    /* CUSTOM TITLE STYLING - KEEP AS IS */
     .custom-title {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         -webkit-background-clip: text;
@@ -117,18 +117,6 @@ st.markdown("""
     [data-testid="stTooltipHoverTarget"],
     .stTooltipIcon,
     [data-testid="stHeaderActionElements"] button[title*="keyboard"] {
-        display: none !important;
-    }
-    
-    /* Hide keyboard shortcut indicators */
-    [data-testid="stAppViewBlockContainer"]::before,
-    .stApp::before {
-        content: none !important;
-        display: none !important;
-    }
-    
-    /* Remove any tooltip content */
-    [role="tooltip"] {
         display: none !important;
     }
     
@@ -212,10 +200,6 @@ st.markdown("""
         color: rgba(255,255,255,0.95) !important;
     }
     
-    [data-testid="stSidebar"] .stMarkdown {
-        color: white !important;
-    }
-    
     /* Logo container */
     .logo-container {
         display: flex;
@@ -291,20 +275,23 @@ st.markdown("""
         border: 1px solid #e9ecef;
     }
     
-    /* DataFrames - FIX VISIBILITY */
-    [data-testid="stDataFrame"] {
+    /* DataFrames - FORCE VISIBILITY */
+    [data-testid="stDataFrame"],
+    .stDataFrame,
+    div[data-testid="stDataFrame"] > div,
+    div[data-testid="stDataFrame"] > div > div {
         background: white !important;
-        min-height: 400px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        min-height: 300px !important;
     }
     
     .stDataFrame {
         border-radius: 12px !important;
-        overflow: visible !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
         border: 1px solid #e9ecef !important;
-        background: white !important;
-        display: block !important;
-        visibility: visible !important;
     }
     
     .stDataFrame thead tr th {
@@ -313,18 +300,6 @@ st.markdown("""
         font-weight: 600 !important;
         padding: 12px !important;
         font-size: 14px !important;
-    }
-    
-    .stDataFrame tbody {
-        background: white !important;
-    }
-    
-    .stDataFrame tbody tr {
-        background: white !important;
-    }
-    
-    .stDataFrame tbody tr:hover {
-        background: #f8f9fa !important;
     }
     
     /* Dividers */
@@ -371,27 +346,49 @@ st.markdown("""
         border-color: #667eea;
     }
     
-    /* Slider Enhancement - MAKE VISIBLE */
+    /* RED SLIDER STYLING - CUSTOM */
     .stSlider {
-        padding: 10px 0 !important;
+        padding: 15px 0 !important;
     }
     
     .stSlider > div {
         background: white !important;
     }
     
-    .stSlider > div > div {
-        background: white !important;
+    /* Slider track background */
+    .stSlider > div > div > div > div {
+        background: #ffe0e0 !important;
+        height: 8px !important;
+        border-radius: 10px !important;
     }
     
-    .stSlider > div > div > div {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+    /* Slider filled portion - RED */
+    .stSlider > div > div > div > div > div {
+        background: linear-gradient(90deg, #ff4444 0%, #cc0000 100%) !important;
+        height: 8px !important;
+        border-radius: 10px !important;
+    }
+    
+    /* Slider thumb - RED CIRCLE */
+    .stSlider > div > div > div > div > div > div {
+        background: #ff0000 !important;
+        border: 3px solid white !important;
+        box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4) !important;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 50% !important;
+    }
+    
+    .stSlider > div > div > div > div > div > div:hover {
+        background: #cc0000 !important;
+        box-shadow: 0 4px 12px rgba(255, 0, 0, 0.6) !important;
+        transform: scale(1.1);
     }
     
     .stSlider label {
         color: #2d3748 !important;
         font-weight: 600 !important;
-        font-size: 14px !important;
+        font-size: 15px !important;
     }
     
     /* File Uploader */
@@ -482,7 +479,7 @@ st.markdown("""
         margin-top: 25px !important;
     }
     
-    /* NUCLEAR FIX FOR EXPANDER ARROWS - HIDE EVERYTHING */
+    /* HIDE EXPANDER ARROWS */
     details summary {
         list-style: none !important;
     }
@@ -492,19 +489,6 @@ st.markdown("""
     }
     
     details summary::marker {
-        display: none !important;
-        content: "" !important;
-    }
-    
-    details summary::before,
-    details summary::after {
-        content: "" !important;
-        display: none !important;
-    }
-    
-    .streamlit-expanderHeader::before,
-    .streamlit-expanderHeader::after {
-        content: "" !important;
         display: none !important;
     }
     
@@ -519,7 +503,6 @@ st.markdown("""
         color: #2d3748 !important;
         font-weight: 600 !important;
         border: 1px solid #e9ecef !important;
-        transition: all 0.3s ease !important;
     }
     
     .streamlit-expanderHeader:hover {
@@ -528,36 +511,9 @@ st.markdown("""
         color: #667eea !important;
     }
     
-    /* Hide arrow text and symbols */
-    .streamlit-expanderHeader *[class*="_arrow"],
-    .streamlit-expanderHeader *[class*="arrow"],
-    [class*="_arrow"],
-    [class*="Arrow"] {
-        display: none !important;
-        visibility: hidden !important;
-        font-size: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-        opacity: 0 !important;
-    }
-    
     .streamlit-expanderContent {
         background: white !important;
         padding: 15px !important;
-        border-radius: 0 0 10px 10px !important;
-    }
-    
-    /* Remove keyboard shortcut overlays */
-    [data-testid="stDecoration"],
-    .element-container [title*="keyboard"],
-    [aria-label*="keyboard"] {
-        display: none !important;
-    }
-    
-    /* Hide empty spans */
-    span:empty,
-    div:empty {
-        display: none !important;
     }
     
     /* Scrollbar */
@@ -704,10 +660,10 @@ def smart_chat(df, user_input):
     return response.choices[0].message.content
 
 # =========================
-# UI LAYOUT - FIXED TITLE
+# UI LAYOUT
 # =========================
 
-# BIG TITLE WITH DIV WRAPPER
+# BIG TITLE - KEEP AS IS
 st.markdown("""
     <div style='margin-bottom: 2rem;'>
         <div class='custom-title'>✨ DataGuardian AI</div>
@@ -741,7 +697,7 @@ if uploaded_file:
     
     tabs = st.tabs(["💎 Data Preview", "🛡️ Quality Audit", "🧠 AI Assistant", "🚀 Model Playground"])
 
-    # TAB 1: DATA PREVIEW
+    # TAB 1: DATA PREVIEW - FIXED TABLE
     with tabs[0]:
         st.subheader("📊 Data Overview")
         
@@ -754,17 +710,8 @@ if uploaded_file:
         st.markdown("---")
         
         st.markdown("### 🔍 First 10 Rows")
-        # FORCE TABLE TO SHOW
-        try:
-            st.dataframe(
-                df.head(10), 
-                use_container_width=True, 
-                height=400,
-                hide_index=False
-            )
-        except:
-            # Fallback if dataframe doesn't render
-            st.write(df.head(10))
+        # FIXED: Use st.write with explicit display
+        st.write(df.head(10))
         
         st.markdown("---")
         
@@ -803,9 +750,9 @@ if uploaded_file:
         
         st.markdown("### 📈 Statistical Summary")
         if len(report["numeric_cols"]) > 0:
-            # Use markdown instead of st.write for expander label
             with st.expander("📊 Click to View Statistics"):
-                st.dataframe(df[report["numeric_cols"]].describe(), use_container_width=True)
+                # FIXED: Use st.write for statistics
+                st.write(df[report["numeric_cols"]].describe())
 
     # TAB 2: QUALITY AUDIT
     with tabs[1]:
@@ -961,7 +908,7 @@ if uploaded_file:
             
             st.session_state.messages.append({"role": "assistant", "content": resp})
 
-    # TAB 4: MODEL PLAYGROUND - FIXED SLIDER
+    # TAB 4: MODEL PLAYGROUND - RED SLIDER
     with tabs[3]:
         st.subheader("🚀 ML Model Playground")
         
@@ -983,18 +930,19 @@ if uploaded_file:
                 )
         
         with col_config3:
-            # FIXED SLIDER WITH VISIBLE BAR
+            # RED DRAGGABLE SLIDER
             st.markdown("**Test Size**")
-            test_size = st.slider(
-                "Adjust test data percentage",
+            test_size_percent = st.slider(
+                "Drag to adjust test data percentage",
                 min_value=10, 
                 max_value=40, 
                 value=20,
                 step=5,
-                format="%d%%",
-                label_visibility="collapsed"
-            ) / 100
-            st.caption(f"Using {int(test_size*100)}% for testing")
+                label_visibility="collapsed",
+                key="test_size_slider"
+            )
+            test_size = test_size_percent / 100
+            st.markdown(f"<p style='text-align: center; color: #666; font-size: 13px;'>Using {test_size_percent}% for testing</p>", unsafe_allow_html=True)
         
         st.markdown("---")
         
