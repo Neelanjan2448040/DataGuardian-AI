@@ -53,7 +53,7 @@ except Exception as e:
     st.stop()
 
 # =========================
-# ENHANCED STYLING - BIGGER TITLE + NO ARROWS
+# ENHANCED STYLING
 # =========================
 st.markdown("""
     <style>
@@ -214,27 +214,6 @@ st.markdown("""
         width: 100%;
         height: 100%;
         object-fit: contain;
-    }
-    
-    /* Title Enhancement - MUCH BIGGER SIZE */
-    h1, .main h1, [data-testid="stMarkdownContainer"] h1 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
-        font-weight: 800 !important;
-        font-size: 4.5rem !important;
-        letter-spacing: -1px !important;
-        margin-bottom: 0.5rem !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* Subtitle */
-    h5 {
-        color: #667eea !important;
-        font-size: 1.3rem !important;
-        font-weight: 500 !important;
-        margin-top: 0 !important;
     }
     
     /* Subheaders */
@@ -501,11 +480,6 @@ st.markdown("""
         opacity: 0 !important;
     }
     
-    /* Force hide text content that contains arrow */
-    .streamlit-expanderHeader span:not(:empty) {
-        font-size: 14px !important;
-    }
-    
     /* Clean expander content */
     .streamlit-expanderContent {
         background: white !important;
@@ -670,11 +644,37 @@ def smart_chat(df, user_input):
     return response.choices[0].message.content
 
 # =========================
-# UI LAYOUT
+# UI LAYOUT - WITH BIGGER TITLE
 # =========================
 
-st.title("✨ DataGuardian AI")
-st.markdown("##### 🛡️ Intelligent Data Analysis & Model Training Platform")
+# CUSTOM HTML TITLE - MUCH BIGGER
+st.markdown("""
+    <h1 style='
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800 !important;
+        font-size: 4.5rem !important;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.2 !important;
+        padding: 0;
+        margin-top: 0;
+    '>
+        ✨ DataGuardian AI
+    </h1>
+    <h5 style='
+        color: #667eea !important;
+        font-size: 1.3rem !important;
+        font-weight: 500;
+        margin-top: 0 !important;
+        margin-bottom: 2rem;
+        padding: 0;
+    '>
+        🛡️ Intelligent Data Analysis & Model Training Platform
+    </h5>
+""", unsafe_allow_html=True)
 
 with st.sidebar:
     st.markdown("""
