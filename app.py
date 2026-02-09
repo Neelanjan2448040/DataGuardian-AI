@@ -14,57 +14,47 @@ from sklearn.svm import SVC, SVR
 from sklearn.metrics import accuracy_score, f1_score, classification_report, mean_squared_error, r2_score, mean_absolute_error
 
 # =========================
-# CONFIG & STYLING
+# PAGE CONFIG - MUST BE FIRST!
 # =========================
-
-# Must set page config FIRST
 st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
 
-# Load environment variables
+# =========================
+# API KEY SETUP
+# =========================
 load_dotenv()
 
-# Get API key with multiple methods
+# Get API key - try Streamlit secrets first, then environment variable
 GROQ_API_KEY = None
-
-# Try Streamlit secrets (cloud deployment)
 try:
     GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 except:
-    pass
-
-# Try environment variable (local .env)
-if not GROQ_API_KEY:
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# Validate
+# Validate API key
 if not GROQ_API_KEY:
     st.error("🔑 **GROQ_API_KEY not found!**")
-    
     col1, col2 = st.columns(2)
-    
     with col1:
         st.markdown("### 💻 For Local Development")
         st.code('GROQ_API_KEY=gsk_your_key_here', language="bash")
-    
     with col2:
         st.markdown("### ☁️ For Streamlit Cloud")
-        st.markdown("Add to Secrets in Settings:")
+        st.markdown("Add to Settings → Secrets:")
         st.code('GROQ_API_KEY = "gsk_your_key_here"', language="toml")
-    
     st.info("🔗 Get your API key: https://console.groq.com/keys")
     st.stop()
 
-# Initialize client
+# Initialize Groq client
 try:
     client = Groq(api_key=GROQ_API_KEY)
     MODEL = "llama-3.3-70b-versatile"
 except Exception as e:
-    st.error(f"❌ Error: {e}")
+    st.error(f"❌ Failed to initialize Groq: {e}")
     st.stop()
 
-st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
-
-# Enhanced CSS with white background and vibrant colors
+# =========================
+# STYLING
+# =========================
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
@@ -78,38 +68,38 @@ st.markdown("""
         background: #ffffff;
     }
     
-    /* Content Area with Subtle Shadow */
+    /* Content Area */
     .block-container {
         background: #ffffff;
         border-radius: 20px;
         padding: 2rem;
+        max-width: 1400px;
     }
     
     /* Enhanced Metrics */
     .stMetric { 
         background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        padding: 25px; 
-        border-radius: 20px; 
-        border-left: 6px solid #667eea;
+        padding: 20px; 
+        border-radius: 15px; 
+        border-left: 5px solid #667eea;
         box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: all 0.3s ease;
     }
     
     .stMetric:hover {
-        transform: translateY(-8px) scale(1.02);
+        transform: translateY(-5px);
         box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
-        border-left-width: 8px;
     }
     
     .stMetric label {
-        font-size: 14px !important;
+        font-size: 13px !important;
         font-weight: 600 !important;
         color: #667eea !important;
     }
     
     .stMetric [data-testid="stMetricValue"] {
-        font-size: 32px !important;
-        font-weight: 800 !important;
+        font-size: 28px !important;
+        font-weight: 700 !important;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -117,90 +107,65 @@ st.markdown("""
     
     /* Beautiful Tabs */
     .stTabs [data-baseweb="tab-list"] { 
-        gap: 12px; 
+        gap: 10px; 
         background: #f8f9fa;
-        padding: 15px;
-        border-radius: 20px;
+        padding: 12px;
+        border-radius: 15px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     
     .stTabs [data-baseweb="tab"] { 
         background: #ffffff;
-        border-radius: 15px; 
-        padding: 14px 28px; 
+        border-radius: 12px; 
+        padding: 12px 24px; 
         color: #495057;
-        font-weight: 700;
-        font-size: 15px;
+        font-weight: 600;
+        font-size: 14px;
         border: 2px solid #e9ecef;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stTabs [data-baseweb="tab"]::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-        transition: left 0.5s;
+        transition: all 0.3s ease;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
         background: #f8f9fa;
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
         border-color: #667eea;
         color: #667eea;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover::before {
-        left: 100%;
     }
     
     .stTabs [aria-selected="true"] { 
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important; 
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35) !important;
-        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35) !important;
         border-color: #764ba2 !important;
     }
     
     /* Sidebar Enhancement */
-    .css-1d391kg, [data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 4px 0 20px rgba(0,0,0,0.1);
     }
     
-    .css-1d391kg h1, .css-1d391kg h2, .css-1d391kg h3, 
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
         color: white !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
     
-    .css-1d391kg p, .css-1d391kg li, 
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] li {
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] li {
         color: rgba(255,255,255,0.95) !important;
     }
     
-    .css-1d391kg .stMarkdown, [data-testid="stSidebar"] .stMarkdown {
-        color: white !important;
-    }
-    
-    /* Logo container styling */
+    /* Logo container */
     .logo-container {
         display: flex;
         justify-content: center;
         align-items: center;
         background: white;
         border-radius: 50%;
-        width: 90px;
-        height: 90px;
+        width: 80px;
+        height: 80px;
         margin: 0 auto 20px auto;
-        padding: 15px;
+        padding: 12px;
         box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
     
@@ -216,19 +181,42 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
-        font-size: 3.5rem !important;
-        letter-spacing: -1px;
-        animation: titleGlow 3s ease-in-out infinite;
+        font-size: 2.5rem !important;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.5rem !important;
     }
     
-    @keyframes titleGlow {
-        0%, 100% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.3)); }
-        50% { filter: drop-shadow(0 0 20px rgba(118, 75, 162, 0.5)); }
+    /* Subtitle */
+    h5 {
+        color: #667eea !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+        margin-top: 0 !important;
     }
     
-    /* Regular text colors for white background */
+    /* Subheaders */
+    h2 {
+        color: #2d3748 !important;
+        font-weight: 700 !important;
+        font-size: 1.8rem !important;
+    }
+    
+    h3 {
+        color: #667eea !important;
+        font-weight: 700 !important;
+        font-size: 1.3rem !important;
+    }
+    
+    h4 {
+        color: #495057 !important;
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+    }
+    
+    /* Regular text */
     p, li, span, div {
         color: #2d3748 !important;
+        font-size: 15px !important;
     }
     
     /* Enhanced Buttons */
@@ -236,96 +224,34 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
-        border-radius: 15px;
-        padding: 14px 32px;
-        font-weight: 700;
-        font-size: 16px;
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: 12px;
+        padding: 12px 28px;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stButton>button::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-    
-    .stButton>button:hover::before {
-        width: 300px;
-        height: 300px;
+        letter-spacing: 0.5px;
     }
     
     .stButton>button:hover {
-        transform: translateY(-4px) scale(1.05);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
     }
     
-    /* Beautiful Chat Messages */
+    /* Chat Messages */
     .stChatMessage {
         background: #f8f9fa;
-        border-radius: 20px;
-        padding: 20px;
-        margin: 15px 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border: 2px solid #e9ecef;
-        transition: all 0.3s ease;
-        animation: messageSlide 0.5s ease-out;
-    }
-    
-    @keyframes messageSlide {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    .stChatMessage:hover {
-        transform: translateX(5px);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
-        border-color: #667eea;
-    }
-    
-    /* Chat Input Enhancement */
-    .stChatInputContainer {
-        background: #ffffff;
-        border-radius: 25px;
-        padding: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 2px solid #e9ecef;
-    }
-    
-    .stChatInput textarea {
-        border-radius: 20px !important;
-        border: 2px solid #e9ecef !important;
-        padding: 15px !important;
-        font-size: 15px !important;
-        transition: all 0.3s ease !important;
-        color: #2d3748 !important;
-    }
-    
-    .stChatInput textarea:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-    }
-    
-    /* Enhanced DataFrames */
-    .stDataFrame {
         border-radius: 15px;
+        padding: 15px;
+        margin: 10px 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+    
+    /* DataFrames */
+    .stDataFrame {
+        border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         border: 1px solid #e9ecef;
@@ -334,45 +260,9 @@ st.markdown("""
     .stDataFrame thead tr th {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important;
-        font-weight: 700 !important;
-        padding: 15px !important;
-    }
-    
-    .stDataFrame tbody tr:hover {
-        background-color: rgba(102, 126, 234, 0.05) !important;
-        transition: background-color 0.3s ease;
-    }
-    
-    /* Code Blocks Enhancement */
-    .stCodeBlock {
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e9ecef;
-        background: #2d3748;
-    }
-    
-    /* Subheaders */
-    .stMarkdown h3, h3 {
-        color: #667eea !important;
-        font-weight: 700 !important;
-        margin-top: 20px !important;
-        font-size: 24px !important;
-    }
-    
-    .stMarkdown h2, h2 {
-        color: #2d3748 !important;
-        font-weight: 700 !important;
-    }
-    
-    .stMarkdown h4, h4 {
-        color: #495057 !important;
         font-weight: 600 !important;
-    }
-    
-    .stMarkdown h5, h5 {
-        color: #667eea !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
+        padding: 12px !important;
+        font-size: 14px !important;
     }
     
     /* Dividers */
@@ -380,71 +270,51 @@ st.markdown("""
         border: none;
         height: 2px;
         background: linear-gradient(90deg, transparent, #667eea, transparent);
-        margin: 30px 0;
+        margin: 25px 0;
     }
     
     /* Success/Error/Info Messages */
-    .stSuccess, .stError, .stInfo, .stWarning {
-        border-radius: 15px;
-        padding: 15px 20px;
-        font-weight: 600;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-    
     .stSuccess {
         background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-        border-left: 5px solid #059669;
+        border-left: 4px solid #059669;
+        border-radius: 10px;
+        padding: 12px 16px;
         color: #065f46 !important;
     }
     
     .stError {
         background: linear-gradient(135deg, #ffa8a8 0%, #ff6b6b 100%);
-        border-left: 5px solid #dc2626;
+        border-left: 4px solid #dc2626;
+        border-radius: 10px;
+        padding: 12px 16px;
         color: #991b1b !important;
     }
     
     .stInfo {
         background: linear-gradient(135deg, #a8e6ff 0%, #6bb6ff 100%);
-        border-left: 5px solid #2563eb;
+        border-left: 4px solid #2563eb;
+        border-radius: 10px;
+        padding: 12px 16px;
         color: #1e40af !important;
     }
     
-    /* Spinner */
-    .stSpinner > div {
-        border-color: #667eea transparent transparent transparent !important;
-    }
-    
-    /* Selectbox Enhancement */
+    /* Selectbox */
     .stSelectbox > div > div {
-        border-radius: 12px;
+        border-radius: 10px;
         border: 2px solid #e9ecef;
-        transition: all 0.3s ease;
         background: #ffffff;
     }
     
     .stSelectbox > div > div:hover {
         border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    /* Radio buttons */
-    .stRadio > div {
-        background: #f8f9fa;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    
-    .stRadio label {
-        color: #2d3748 !important;
     }
     
     /* File Uploader */
     .stFileUploader {
-        border-radius: 15px;
-        border: 3px dashed #e9ecef;
-        padding: 30px;
+        border-radius: 12px;
+        border: 2px dashed #e9ecef;
+        padding: 25px;
         background: #f8f9fa;
-        transition: all 0.3s ease;
     }
     
     .stFileUploader:hover {
@@ -452,19 +322,15 @@ st.markdown("""
         background: #ffffff;
     }
     
-    /* Slider Enhancement */
-    .stSlider > div > div > div {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    }
-    
     /* Welcome Screen */
     .welcome-card {
         background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        border-radius: 20px;
-        padding: 30px;
+        border-radius: 15px;
+        padding: 25px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         border: 2px solid #e9ecef;
         transition: all 0.3s ease;
+        text-align: center;
     }
     
     .welcome-card:hover {
@@ -474,32 +340,62 @@ st.markdown("""
     }
     
     .welcome-card h3 {
-        margin-bottom: 10px;
+        font-size: 1.2rem !important;
+        margin-bottom: 8px !important;
     }
     
     .welcome-card p {
         color: #6c757d !important;
-        font-size: 14px;
+        font-size: 14px !important;
     }
     
-    /* Info Card for Stats */
+    /* Info Card */
     .info-card {
         background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        border-radius: 15px;
-        padding: 20px;
+        border-radius: 12px;
+        padding: 18px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border-left: 5px solid #667eea;
-        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        margin: 12px 0;
     }
     
     .info-card h4 {
-        margin-bottom: 15px;
+        margin-bottom: 12px !important;
+        font-size: 1.1rem !important;
     }
     
-    /* Smooth Scrollbar */
+    /* Welcome message */
+    .welcome-message {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .welcome-message h2 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem !important;
+        font-weight: 800;
+        margin-bottom: 15px !important;
+    }
+    
+    .welcome-message .subtitle {
+        font-size: 1.3rem !important;
+        color: #667eea !important;
+        margin-top: 15px !important;
+        font-weight: 600;
+    }
+    
+    .welcome-message .instruction {
+        font-size: 1.1rem !important;
+        color: #6c757d !important;
+        margin-top: 25px !important;
+    }
+    
+    /* Scrollbar */
     ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
     
     ::-webkit-scrollbar-track {
@@ -512,70 +408,14 @@ st.markdown("""
         border-radius: 10px;
     }
     
-    ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
-    }
-    
-    /* Floating Animation */
+    /* Float animation */
     @keyframes float {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+        50% { transform: translateY(-8px); }
     }
     
     .float {
         animation: float 3s ease-in-out infinite;
-    }
-    
-    /* Expander styling */
-    .streamlit-expanderHeader {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 10px;
-        color: #2d3748 !important;
-        font-weight: 600 !important;
-    }
-    
-    .streamlit-expanderHeader:hover {
-        background: #e9ecef;
-        color: #667eea !important;
-    }
-    
-    /* Input fields */
-    input, textarea, select {
-        color: #2d3748 !important;
-    }
-    
-    /* Markdown text */
-    .stMarkdown {
-        color: #2d3748 !important;
-    }
-    
-    /* Welcome message styling */
-    .welcome-message {
-        text-align: center;
-        padding: 80px 20px;
-    }
-    
-    .welcome-message h2 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 20px;
-    }
-    
-    .welcome-message .subtitle {
-        font-size: 22px;
-        color: #667eea !important;
-        margin-top: 20px;
-        font-weight: 600;
-    }
-    
-    .welcome-message .instruction {
-        font-size: 18px;
-        color: #6c757d !important;
-        margin-top: 30px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -687,7 +527,6 @@ st.title("✨ DataGuardian AI")
 st.markdown("##### 🛡️ Intelligent Data Analysis & Model Training Platform")
 
 with st.sidebar:
-    # Enhanced logo with white background
     st.markdown("""
         <div class="logo-container">
             <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png" alt="Logo">
@@ -713,9 +552,7 @@ if uploaded_file:
     
     tabs = st.tabs(["💎 Data Preview", "🛡️ Quality Audit", "🧠 AI Assistant", "🚀 Model Playground"])
 
-    # =========================
     # TAB 1: DATA PREVIEW
-    # =========================
     with tabs[0]:
         st.subheader("📊 Data Overview")
         
@@ -770,9 +607,7 @@ if uploaded_file:
             with st.expander("View Statistics", expanded=False):
                 st.dataframe(df[report["numeric_cols"]].describe(), use_container_width=True)
 
-    # =========================
     # TAB 2: QUALITY AUDIT
-    # =========================
     with tabs[1]:
         st.subheader("🔍 Data Quality Overview")
         
@@ -877,9 +712,7 @@ if uploaded_file:
                 st.pyplot(fig)
                 plt.clf()
 
-    # =========================
     # TAB 3: AI ASSISTANT
-    # =========================
     with tabs[2]:
         st.subheader("💬 Chat with your Data")
         st.markdown("*Ask questions naturally - I'll provide visualizations when you need them!*")
@@ -928,9 +761,7 @@ if uploaded_file:
             
             st.session_state.messages.append({"role": "assistant", "content": resp})
 
-    # =========================
     # TAB 4: MODEL PLAYGROUND
-    # =========================
     with tabs[3]:
         st.subheader("🚀 ML Model Playground")
         
