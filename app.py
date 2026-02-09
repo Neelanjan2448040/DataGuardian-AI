@@ -53,7 +53,7 @@ except Exception as e:
     st.stop()
 
 # =========================
-# ENHANCED STYLING - WHITE BACKGROUND FIX
+# ENHANCED STYLING - ALL FIXES INCLUDED
 # =========================
 st.markdown("""
     <style>
@@ -88,7 +88,26 @@ st.markdown("""
         background-color: rgba(255, 255, 255, 0) !important;
     }
     
-    /* Remove any gray backgrounds */
+    /* Remove keyboard shortcuts tooltip */
+    [data-testid="stTooltipHoverTarget"],
+    .stTooltipIcon,
+    [data-testid="stHeaderActionElements"] button[title*="keyboard"] {
+        display: none !important;
+    }
+    
+    /* Hide keyboard shortcut indicators */
+    [data-testid="stAppViewBlockContainer"]::before,
+    .stApp::before {
+        content: none !important;
+        display: none !important;
+    }
+    
+    /* Remove any tooltip content */
+    [role="tooltip"] {
+        display: none !important;
+    }
+    
+    /* Remove sidebar */
     section[data-testid="stSidebar"] > div {
         background: linear-gradient(180deg, #667eea 0%, #764ba2 100%) !important;
     }
@@ -197,13 +216,13 @@ st.markdown("""
         object-fit: contain;
     }
     
-    /* Title Enhancement */
+    /* Title Enhancement - BIGGER SIZE */
     h1 {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
-        font-size: 2.5rem !important;
+        font-size: 3.5rem !important;
         letter-spacing: -0.5px;
         margin-bottom: 0.5rem !important;
     }
@@ -211,7 +230,7 @@ st.markdown("""
     /* Subtitle */
     h5 {
         color: #667eea !important;
-        font-size: 1.1rem !important;
+        font-size: 1.2rem !important;
         font-weight: 500 !important;
         margin-top: 0 !important;
     }
@@ -424,6 +443,65 @@ st.markdown("""
         margin-top: 25px !important;
     }
     
+    /* FIX EXPANDER ARROW ISSUES */
+    /* Hide the _arrow text completely */
+    .streamlit-expanderHeader::before {
+        content: "" !important;
+        display: none !important;
+    }
+    
+    /* Hide any stray text nodes */
+    details summary::before {
+        content: "" !important;
+        display: none !important;
+    }
+    
+    /* Clean expander styling */
+    .streamlit-expanderHeader {
+        background: #f8f9fa !important;
+        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        color: #2d3748 !important;
+        font-weight: 600 !important;
+        border: 1px solid #e9ecef !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background: #ffffff !important;
+        border-color: #667eea !important;
+        color: #667eea !important;
+    }
+    
+    /* Remove default expander icons */
+    details summary {
+        list-style: none !important;
+    }
+    
+    details summary::-webkit-details-marker {
+        display: none !important;
+    }
+    
+    /* Hide all ::marker pseudo-elements */
+    details summary::marker {
+        display: none !important;
+        content: "" !important;
+    }
+    
+    /* Expander content */
+    .streamlit-expanderContent {
+        background: white !important;
+        padding: 15px !important;
+        border-radius: 0 0 10px 10px !important;
+    }
+    
+    /* Remove keyboard shortcut overlays */
+    [data-testid="stDecoration"],
+    .element-container [title*="keyboard"],
+    [aria-label*="keyboard"] {
+        display: none !important;
+    }
+    
     /* Scrollbar */
     ::-webkit-scrollbar {
         width: 8px;
@@ -455,11 +533,6 @@ st.markdown("""
         background: white !important;
     }
     
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: white !important;
-    }
-    
     /* Input fields */
     input, textarea, select {
         background: white !important;
@@ -469,6 +542,11 @@ st.markdown("""
     /* Code blocks */
     .stCodeBlock {
         background: #2d3748 !important;
+    }
+    
+    /* Hide any leftover text artifacts */
+    span:empty {
+        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -657,7 +735,7 @@ if uploaded_file:
         
         st.write("### 📈 Statistical Summary")
         if len(report["numeric_cols"]) > 0:
-            with st.expander("View Statistics", expanded=False):
+            with st.expander("📊 View Statistics", expanded=False):
                 st.dataframe(df[report["numeric_cols"]].describe(), use_container_width=True)
 
     # TAB 2: QUALITY AUDIT
