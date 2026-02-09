@@ -16,9 +16,42 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report, mea
 # =========================
 # CONFIG & STYLING
 # =========================
+
+# Load environment variables from .env file (for local development)
 load_dotenv()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-MODEL = "llama-3.3-70b-versatile"
+
+# Get API key with priority: Streamlit Secrets > Environment Variable
+try:
+    # Try to get from Streamlit secrets (for cloud deployment)
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+except (FileNotFoundError, KeyError):
+    # Fall back to environment variable (for local development with .env)
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+# Validate API key availability
+if not GROQ_API_KEY:
+    st.error("🔑 **GROQ_API_KEY not found!**")
+    st.warning("""
+    **For Local Development:** Create a `.env` file with:
+    ```
+    GROQ_API_KEY=your_api_key_here
+    ```
+    
+    **For Streamlit Cloud:** Add your API key in the Secrets section:
+    1. Go to your app settings
+    2. Click "Secrets" 
+    3. Add: `GROQ_API_KEY = "your_api_key_here"`
+    """)
+    st.stop()
+
+# Initialize Groq client
+try:
+    client = Groq(api_key=GROQ_API_KEY)
+    MODEL = "llama-3.3-70b-versatile"
+except Exception as e:
+    st.error(f"❌ Failed to initialize Groq client: {e}")
+    st.info("Please check your API key and try again.")
+    st.stop()
 
 st.set_page_config(page_title="DataGuardian AI", layout="wide", initial_sidebar_state="expanded")
 
